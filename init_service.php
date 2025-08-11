@@ -1,0 +1,125 @@
+<?php
+// Connect to the SQLite database
+$db = new PDO('sqlite:clinic_bill.db');
+$db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+
+// Prepare insert statement
+$stmt = $db->prepare("INSERT INTO services (service_id, service_name, price) VALUES (:id, :name, :price)");
+
+// Data array of 100 services
+$services = [
+    ['SRV001', 'CBC (Complete Blood Count)', 100.0],
+    ['SRV002', 'Blood Sugar (Fasting)', 113.5],
+    ['SRV003', 'Blood Sugar (Postprandial)', 127.0],
+    ['SRV004', 'S. Creatinine', 140.5],
+    ['SRV005', 'Lipid Profile', 154.0],
+    ['SRV006', 'S. Bilirubin (Total & Direct)', 167.5],
+    ['SRV007', 'ALT (SGPT)', 181.0],
+    ['SRV008', 'AST (SGOT)', 194.5],
+    ['SRV009', 'Urine R/E', 208.0],
+    ['SRV010', 'Semen Analysis', 221.5],
+    ['SRV011', 'Hepatitis B (HBsAg)', 235.0],
+    ['SRV012', 'Hepatitis C (Anti-HCV)', 248.5],
+    ['SRV013', 'X-Ray Chest PA View', 262.0],
+    ['SRV014', 'ECG', 275.5],
+    ['SRV015', 'Ultrasound Whole Abdomen', 289.0],
+    ['SRV016', 'Thyroid Profile (T3, T4, TSH)', 302.5],
+    ['SRV017', 'S. Calcium', 316.0],
+    ['SRV018', 'S. Uric Acid', 329.5],
+    ['SRV019', 'Widal Test', 343.0],
+    ['SRV020', 'S. Electrolytes (Na+, K+, Cl-)', 356.5],
+    ['SRV021', 'ESR', 370.0],
+    ['SRV022', 'S. Albumin', 383.5],
+    ['SRV023', 'S. Globulin', 397.0],
+    ['SRV024', 'Blood Grouping & Rh Typing', 410.5],
+    ['SRV025', 'Dengue NS1 Antigen', 424.0],
+    ['SRV026', 'Malaria Parasite (MP) Test', 437.5],
+    ['SRV027', 'HIV 1 & 2 (Rapid)', 451.0],
+    ['SRV028', 'HbA1c (Glycated Hemoglobin)', 464.5],
+    ['SRV029', 'Prothrombin Time (PT)', 478.0],
+    ['SRV030', 'INR', 491.5],
+    ['SRV031', 'Stool R/E', 505.0],
+    ['SRV032', 'Stool Occult Blood', 518.5],
+    ['SRV033', 'Beta-HCG (Pregnancy Test)', 532.0],
+    ['SRV034', 'S. Magnesium', 545.5],
+    ['SRV035', 'RA Test', 559.0],
+    ['SRV036', 'CRP (C-Reactive Protein)', 572.5],
+    ['SRV037', 'ANA (Antinuclear Antibody)', 586.0],
+    ['SRV038', 'S. Iron', 599.5],
+    ['SRV039', 'TIBC (Iron Binding Capacity)', 613.0],
+    ['SRV040', 'Vitamin D (25-Hydroxy)', 626.5],
+    ['SRV041', 'Vitamin B12', 640.0],
+    ['SRV042', 'X-Ray KUB', 653.5],
+    ['SRV043', 'X-Ray LS Spine', 667.0],
+    ['SRV044', 'X-Ray Abdomen Erect', 680.5],
+    ['SRV045', 'USG Pelvis', 694.0],
+    ['SRV046', 'USG Pregnancy Profile', 707.5],
+    ['SRV047', 'USG Prostate', 721.0],
+    ['SRV048', 'USG Thyroid', 734.5],
+    ['SRV049', '2D Echo Cardiography', 748.0],
+    ['SRV050', 'TMT (Treadmill Test)', 761.5],
+    ['SRV051', 'LFT (Liver Function Test)', 775.0],
+    ['SRV052', 'RFT (Renal Function Test)', 788.5],
+    ['SRV053', 'S. Amylase', 802.0],
+    ['SRV054', 'S. Lipase', 815.5],
+    ['SRV055', 'Mantoux Test', 829.0],
+    ['SRV056', 'CBC (Complete Blood Count) (56)', 842.5],
+    ['SRV057', 'Blood Sugar (Fasting) (57)', 856.0],
+    ['SRV058', 'Blood Sugar (Postprandial) (58)', 869.5],
+    ['SRV059', 'S. Creatinine (59)', 883.0],
+    ['SRV060', 'Lipid Profile (60)', 896.5],
+    ['SRV061', 'S. Bilirubin (Total & Direct) (61)', 910.0],
+    ['SRV062', 'ALT (SGPT) (62)', 923.5],
+    ['SRV063', 'AST (SGOT) (63)', 937.0],
+    ['SRV064', 'Urine R/E (64)', 950.5],
+    ['SRV065', 'Semen Analysis (65)', 964.0],
+    ['SRV066', 'Hepatitis B (HBsAg) (66)', 977.5],
+    ['SRV067', 'Hepatitis C (Anti-HCV) (67)', 991.0],
+    ['SRV068', 'X-Ray Chest PA View (68)', 1004.5],
+    ['SRV069', 'ECG (69)', 1018.0],
+    ['SRV070', 'Ultrasound Whole Abdomen (70)', 1031.5],
+    ['SRV071', 'Thyroid Profile (T3, T4, TSH) (71)', 1045.0],
+    ['SRV072', 'S. Calcium (72)', 1058.5],
+    ['SRV073', 'S. Uric Acid (73)', 1072.0],
+    ['SRV074', 'Widal Test (74)', 1085.5],
+    ['SRV075', 'S. Electrolytes (Na+, K+, Cl-) (75)', 1099.0],
+    ['SRV076', 'ESR (76)', 1112.5],
+    ['SRV077', 'S. Albumin (77)', 1126.0],
+    ['SRV078', 'S. Globulin (78)', 1139.5],
+    ['SRV079', 'Blood Grouping & Rh Typing (79)', 1153.0],
+    ['SRV080', 'Dengue NS1 Antigen (80)', 1166.5],
+    ['SRV081', 'Malaria Parasite (MP) Test (81)', 1180.0],
+    ['SRV082', 'HIV 1 & 2 (Rapid) (82)', 1193.5],
+    ['SRV083', 'HbA1c (Glycated Hemoglobin) (83)', 1207.0],
+    ['SRV084', 'Prothrombin Time (PT) (84)', 1220.5],
+    ['SRV085', 'INR (85)', 1234.0],
+    ['SRV086', 'Stool R/E (86)', 1247.5],
+    ['SRV087', 'Stool Occult Blood (87)', 1261.0],
+    ['SRV088', 'Beta-HCG (Pregnancy Test) (88)', 1274.5],
+    ['SRV089', 'S. Magnesium (89)', 1288.0],
+    ['SRV090', 'RA Test (90)', 1301.5],
+    ['SRV091', 'CRP (C-Reactive Protein) (91)', 1315.0],
+    ['SRV092', 'ANA (Antinuclear Antibody) (92)', 1328.5],
+    ['SRV093', 'S. Iron (93)', 1342.0],
+    ['SRV094', 'TIBC (Iron Binding Capacity) (94)', 1355.5],
+    ['SRV095', 'Vitamin D (25-Hydroxy) (95)', 1369.0],
+    ['SRV096', 'Vitamin B12 (96)', 1382.5],
+    ['SRV097', 'X-Ray KUB (97)', 1396.0],
+    ['SRV098', 'X-Ray LS Spine (98)', 1409.5],
+    ['SRV099', 'X-Ray Abdomen Erect (99)', 1423.0],
+    ['SRV100', 'USG Pelvis (100)', 1436.5]
+];
+
+
+// Execute insert for each row
+foreach ($services as $service) {
+    $stmt->execute([
+        ':id' => $service[0],
+        ':name' => $service[1],
+        ':price' => $service[2]
+    ]);
+}
+
+echo "✅ Inserted 100 services into bill.db successfully.";
+?>

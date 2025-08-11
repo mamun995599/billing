@@ -1,0 +1,168 @@
+[2025-08-10 23:29:20] 🟢 backup.php started. Backup type: interval
+[2025-08-10 23:29:20] Interval backup: every 120 seconds
+[2025-08-10 23:29:21] ✅ rclone found: rclone v1.70.3
+[2025-08-10 23:29:21] ✅ rclone config already exists in script directory
+[2025-08-10 23:29:21] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-29-21.db
+[2025-08-10 23:29:21] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:29:21] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-29-21.db
+[2025-08-10 23:29:21] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:29:21] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-29-21.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:29:22] Backup process started with PID: 15196
+[2025-08-10 23:29:30] 📤 rclone: 2025/08/10 23:29:30 INFO  : clinic_2025-08-10_23-29-21.db: Copied (new)
+[2025-08-10 23:29:30] 📤 rclone: 2025/08/10 23:29:30 INFO  :
+[2025-08-10 23:29:30] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 6 KiB/s, ETA 0s
+[2025-08-10 23:29:30] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:29:30] 📤 rclone: Elapsed time:         4.1s
+[2025-08-10 23:29:30] 📤 rclone: 
+[2025-08-10 23:29:30] ✅ Backup uploaded: clinic_2025-08-10_23-29-21.db
+[2025-08-10 23:29:30] 🧹 Cleaning old backups...
+[2025-08-10 23:29:32] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:30:32] 🧹 Cleaning old backups...
+[2025-08-10 23:30:34] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:31:34] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-31-34.db
+[2025-08-10 23:31:34] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:31:34] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-31-34.db
+[2025-08-10 23:31:34] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:31:34] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-31-34.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:31:38] 📤 rclone: 2025/08/10 23:31:38 INFO  : clinic_2025-08-10_23-31-34.db: Copied (new)
+[2025-08-10 23:31:38] 📤 rclone: 2025/08/10 23:31:38 INFO  :
+[2025-08-10 23:31:38] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 23.986 KiB/s, ETA 0s
+[2025-08-10 23:31:38] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:31:38] 📤 rclone: Elapsed time:         1.9s
+[2025-08-10 23:31:38] 📤 rclone: 
+[2025-08-10 23:31:38] ✅ Backup uploaded: clinic_2025-08-10_23-31-34.db
+[2025-08-10 23:31:38] 🧹 Cleaning old backups...
+[2025-08-10 23:31:39] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:32:39] 🧹 Cleaning old backups...
+[2025-08-10 23:32:41] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:33:41] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-33-41.db
+[2025-08-10 23:33:41] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:33:41] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-33-41.db
+[2025-08-10 23:33:41] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:33:41] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-33-41.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:33:45] 📤 rclone: 2025/08/10 23:33:45 INFO  : clinic_2025-08-10_23-33-41.db: Copied (new)
+[2025-08-10 23:33:45] 📤 rclone: 2025/08/10 23:33:45 INFO  :
+[2025-08-10 23:33:45] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 12 KiB/s, ETA 0s
+[2025-08-10 23:33:45] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:33:45] 📤 rclone: Elapsed time:         2.3s
+[2025-08-10 23:33:45] 📤 rclone: 
+[2025-08-10 23:33:45] ✅ Backup uploaded: clinic_2025-08-10_23-33-41.db
+[2025-08-10 23:33:45] 🧹 Cleaning old backups...
+[2025-08-10 23:33:46] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:34:00] Backup process stopped (PID: 15196)
+[2025-08-10 23:34:10] 🟢 backup.php started. Backup type: interval
+[2025-08-10 23:34:10] Interval backup: every 120 seconds
+[2025-08-10 23:34:10] ✅ rclone found: rclone v1.70.3
+[2025-08-10 23:34:10] ✅ rclone config already exists in script directory
+[2025-08-10 23:34:10] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-34-10.db
+[2025-08-10 23:34:10] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:34:10] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-34-10.db
+[2025-08-10 23:34:10] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:34:10] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-34-10.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:34:11] Backup process started with PID: 14864
+[2025-08-10 23:34:47] 📤 rclone: 2025/08/10 23:34:47 INFO  : clinic_2025-08-10_23-34-10.db: Copied (new)
+[2025-08-10 23:34:47] 📤 rclone: 2025/08/10 23:34:47 INFO  :
+[2025-08-10 23:34:47] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 12 KiB/s, ETA 0s
+[2025-08-10 23:34:47] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:34:47] 📤 rclone: Elapsed time:         2.0s
+[2025-08-10 23:34:47] 📤 rclone: 
+[2025-08-10 23:34:47] ✅ Backup uploaded: clinic_2025-08-10_23-34-10.db
+[2025-08-10 23:34:47] 🧹 Cleaning old backups...
+[2025-08-10 23:34:48] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:35:48] 🧹 Cleaning old backups...
+[2025-08-10 23:35:50] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:36:50] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-36-50.db
+[2025-08-10 23:36:50] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:36:50] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-36-50.db
+[2025-08-10 23:36:50] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:36:50] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-36-50.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:36:53] 📤 rclone: 2025/08/10 23:36:53 INFO  : clinic_2025-08-10_23-36-50.db: Copied (new)
+[2025-08-10 23:36:53] 📤 rclone: 2025/08/10 23:36:53 INFO  :
+[2025-08-10 23:36:53] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 12 KiB/s, ETA 0s
+[2025-08-10 23:36:53] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:36:53] 📤 rclone: Elapsed time:         2.0s
+[2025-08-10 23:36:53] 📤 rclone: 
+[2025-08-10 23:36:53] ✅ Backup uploaded: clinic_2025-08-10_23-36-50.db
+[2025-08-10 23:36:53] 🧹 Cleaning old backups...
+[2025-08-10 23:36:55] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:37:55] 🧹 Cleaning old backups...
+[2025-08-10 23:37:56] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:38:56] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-38-56.db
+[2025-08-10 23:38:56] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:38:56] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-38-56.db
+[2025-08-10 23:38:56] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:38:56] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-38-56.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:39:00] 📤 rclone: 2025/08/10 23:39:00 INFO  : clinic_2025-08-10_23-38-56.db: Copied (new)
+[2025-08-10 23:39:00] 📤 rclone: 2025/08/10 23:39:00 INFO  :
+[2025-08-10 23:39:00] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 24 KiB/s, ETA 0s
+[2025-08-10 23:39:00] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:39:00] 📤 rclone: Elapsed time:         1.9s
+[2025-08-10 23:39:00] 📤 rclone: 
+[2025-08-10 23:39:00] ✅ Backup uploaded: clinic_2025-08-10_23-38-56.db
+[2025-08-10 23:39:00] 🧹 Cleaning old backups...
+[2025-08-10 23:39:01] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:40:01] 🧹 Cleaning old backups...
+[2025-08-10 23:40:03] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:41:03] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-41-03.db
+[2025-08-10 23:41:03] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:41:03] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-41-03.db
+[2025-08-10 23:41:03] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:41:03] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-41-03.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:41:07] 📤 rclone: 2025/08/10 23:41:07 INFO  : clinic_2025-08-10_23-41-03.db: Copied (new)
+[2025-08-10 23:41:07] 📤 rclone: 2025/08/10 23:41:07 INFO  :
+[2025-08-10 23:41:07] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 12 KiB/s, ETA 0s
+[2025-08-10 23:41:07] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:41:07] 📤 rclone: Elapsed time:         2.3s
+[2025-08-10 23:41:07] 📤 rclone: 
+[2025-08-10 23:41:07] ✅ Backup uploaded: clinic_2025-08-10_23-41-03.db
+[2025-08-10 23:41:07] 🧹 Cleaning old backups...
+[2025-08-10 23:41:09] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:42:09] 🧹 Cleaning old backups...
+[2025-08-10 23:42:44] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:43:44] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-43-44.db
+[2025-08-10 23:43:44] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:43:44] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-43-44.db
+[2025-08-10 23:43:44] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:43:44] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-43-44.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:43:47] 📤 rclone: 2025/08/10 23:43:47 INFO  : clinic_2025-08-10_23-43-44.db: Copied (new)
+[2025-08-10 23:43:47] 📤 rclone: 2025/08/10 23:43:47 INFO  :
+[2025-08-10 23:43:47] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 12 KiB/s, ETA 0s
+[2025-08-10 23:43:47] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:43:47] 📤 rclone: Elapsed time:         2.0s
+[2025-08-10 23:43:47] 📤 rclone: 
+[2025-08-10 23:43:47] ✅ Backup uploaded: clinic_2025-08-10_23-43-44.db
+[2025-08-10 23:43:47] 🧹 Cleaning old backups...
+[2025-08-10 23:43:49] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:44:49] 🧹 Cleaning old backups...
+[2025-08-10 23:44:51] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:45:51] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-45-51.db
+[2025-08-10 23:45:51] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:45:51] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-45-51.db
+[2025-08-10 23:45:51] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:45:51] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-45-51.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:45:57] 📤 rclone: 2025/08/10 23:45:57 INFO  : clinic_2025-08-10_23-45-51.db: Copied (new)
+[2025-08-10 23:45:57] 📤 rclone: 2025/08/10 23:45:57 INFO  :
+[2025-08-10 23:45:57] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 6 KiB/s, ETA 0s
+[2025-08-10 23:45:57] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:45:57] 📤 rclone: Elapsed time:         4.1s
+[2025-08-10 23:45:57] 📤 rclone: 
+[2025-08-10 23:45:57] ✅ Backup uploaded: clinic_2025-08-10_23-45-51.db
+[2025-08-10 23:45:57] 🧹 Cleaning old backups...
+[2025-08-10 23:45:59] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:46:59] 🧹 Cleaning old backups...
+[2025-08-10 23:47:00] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:48:00] 🔄 Creating backup: C:\xampp\htdocs\billing/backups/clinic_2025-08-10_23-48-00.db
+[2025-08-10 23:48:00] 📊 Backup file size: 24,576 bytes
+[2025-08-10 23:48:00] 📤 Using rclone path: C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-48-00.db
+[2025-08-10 23:48:00] 📤 Using config file: C:\xampp\htdocs\billing/rclone.conf
+[2025-08-10 23:48:00] 📤 Executing: rclone --config "C:\xampp\htdocs\billing/rclone.conf" copy "C:/xampp/htdocs/billing/backups/clinic_2025-08-10_23-48-00.db" gdrive:clinic/ --verbose 2>&1
+[2025-08-10 23:48:04] 📤 rclone: 2025/08/10 23:48:04 INFO  : clinic_2025-08-10_23-48-00.db: Copied (new)
+[2025-08-10 23:48:04] 📤 rclone: 2025/08/10 23:48:04 INFO  :
+[2025-08-10 23:48:04] 📤 rclone: Transferred:   	       24 KiB / 24 KiB, 100%, 12 KiB/s, ETA 0s
+[2025-08-10 23:48:04] 📤 rclone: Transferred:            1 / 1, 100%
+[2025-08-10 23:48:04] 📤 rclone: Elapsed time:         2.1s
+[2025-08-10 23:48:04] 📤 rclone: 
+[2025-08-10 23:48:04] ✅ Backup uploaded: clinic_2025-08-10_23-48-00.db
+[2025-08-10 23:48:04] 🧹 Cleaning old backups...
+[2025-08-10 23:48:06] ⏳ Waiting... Next check in 60 seconds.
+[2025-08-10 23:48:31] Backup process stopped (PID: 14864)

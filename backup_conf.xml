@@ -1,0 +1,2 @@
+<?xml version="1.0"?>
+<backup_config><source_file>clinic_bill.db</source_file><gdrive_folder>clinic</gdrive_folder><keep_days>7</keep_days><check_interval>60</check_interval><backup_type>interval</backup_type><interval_backup><interval_seconds>120</interval_seconds></interval_backup></backup_config>
