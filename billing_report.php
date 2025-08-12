@@ -1,8 +1,7 @@
 <?php
 include 'db_sqlite.php'; // Changed to SQLite database connection
-
 // Fetch doctor list
-$doctor_stmt = $pdo->query("SELECT DISTINCT ref_doctors FROM patients WHERE ref_doctors IS NOT NULL ORDER BY ref_doctors");
+$doctor_stmt = $pdo->query("SELECT DISTINCT ref_doctors FROM patients WHERE ref_doctors IS NOT NULL AND ref_doctors != '' ORDER BY ref_doctors");
 $doctors = $doctor_stmt->fetchAll(PDO::FETCH_COLUMN);
 // Default: current month start and end
 $startDate = $_GET['start_date'] ?? date('Y-m-01');
@@ -19,7 +18,8 @@ $sql = "
     GROUP_CONCAT(b.service_name, '; ') AS services,
     SUM(b.final_price) AS total,
     p.less_total,
-    p.paid
+    p.paid,
+    (SUM(b.final_price) - p.less_total - p.paid) AS due
   FROM billing b
   JOIN patients p ON b.patient_id = p.patient_id
   WHERE p.date BETWEEN ? AND ?
@@ -27,28 +27,20 @@ $sql = "
 $params = [$startDate, $endDate];
 // Add doctor filter if specified
 if (!empty($_GET['doctor'])) {
-    $sql .= " AND p.ref_doctors = ?";
-    $params[] = $_GET['doctor'];
+    if ($_GET['doctor'] === 'EMPTY') {
+        // Filter for patients with empty doctor
+        $sql .= " AND (p.ref_doctors IS NULL OR p.ref_doctors = '')";
+    } else {
+        // Filter for patients with specific doctor
+        $sql .= " AND p.ref_doctors = ?";
+        $params[] = $_GET['doctor'];
+    }
 }
 $sql .= " GROUP BY p.patient_id, p.date, p.patient_name, p.phone, p.ref_doctors, p.ref_name, p.paid, p.less_total
   ORDER BY p.date DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Calculate discount and due for each row
-foreach ($rows as &$row) {
-    $total = $row['total'];
-    $less_total = $row['less_total'] ?? 0;
-    $paid = $row['paid'] ?? 0;
-    
-    // Use only less_total for discount (ignore less_percent_total)
-    $discount = $less_total;
-    $row['discount'] = $discount;
-    
-    // Calculate due amount
-    $row['due'] = $total - $discount - $paid;
-}
 ?>
 <!DOCTYPE html>
 <html>
@@ -77,8 +69,9 @@ foreach ($rows as &$row) {
     <label class="mr-2">Doctor</label>
     <select name="doctor" id="doctorFilter" class="form-control mr-3">
       <option value="">All Doctors</option>
+      <option value="EMPTY" <?= (isset($_GET['doctor']) && $_GET['doctor'] === 'EMPTY') ? 'selected' : '' ?>>Blank</option>
       <?php foreach ($doctors as $doc): ?>
-        <option value="<?= htmlspecialchars($doc) ?>" <?= ($_GET['doctor'] ?? '') === $doc ? 'selected' : '' ?>>
+        <option value="<?= htmlspecialchars($doc) ?>" <?= (isset($_GET['doctor']) && $_GET['doctor'] === $doc) ? 'selected' : '' ?>>
           <?= htmlspecialchars($doc) ?>
         </option>
       <?php endforeach ?>
@@ -113,11 +106,11 @@ foreach ($rows as &$row) {
           <td><?= $row['patient_id'] ?></td>
           <td><?= htmlspecialchars($row['patient_name']) ?></td>
           <td><?= htmlspecialchars($row['phone']) ?></td>
-          <td><?= htmlspecialchars($row['doctor']) ?></td>
-          <td><?= htmlspecialchars($row['ref_name']) ?></td>
+          <td><?= htmlspecialchars($row['doctor'] ?? 'N/A') ?></td>
+          <td><?= htmlspecialchars($row['ref_name'] ?? 'N/A') ?></td>
           <td><?= htmlspecialchars($row['services']) ?></td>
           <td><?= number_format($row['total'], 2) ?></td>
-          <td class="discount-column"><?= number_format($row['discount'], 2) ?></td>
+          <td class="discount-column"><?= number_format($row['less_total'], 2) ?></td>
           <td><?= number_format($row['paid'], 2) ?></td>
           <td><?= number_format($row['due'], 2) ?></td>
         </tr>
