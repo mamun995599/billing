@@ -6,17 +6,6 @@ ini_set('display_errors', 1);
 $smsConfig = simplexml_load_file('sms_conf.xml');
 $smsHost = (string)$smsConfig->sms->host;
 $smsPort = (string)$smsConfig->sms->port;
-
-// Check if user_conf.xml exists, if not create it with default credentials
-$userConfFile = 'user_conf.xml';
-if (!file_exists($userConfFile)) {
-    $defaultUser = 'admin';
-    $defaultPass = password_hash('admin123', PASSWORD_DEFAULT); // Using password_hash for security
-    $xml = new SimpleXMLElement('<config/>');
-    $xml->addChild('username', $defaultUser);
-    $xml->addChild('password', $defaultPass);
-    $xml->asXML($userConfFile);
-}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -437,8 +426,6 @@ if (!file_exists($userConfFile)) {
       margin-left: auto;
       position: relative;
       z-index: 10;
-      display: flex;
-      gap: 10px;
     }
     
     /* Loading and retry styles */
@@ -637,7 +624,7 @@ if (!file_exists($userConfFile)) {
     }
     
     /* Fix for update button not being clickable in mobile browsers */
-    #update-btn, #print-btn {
+    #update-btn {
       position: relative;
       z-index: 15;
       pointer-events: auto;
@@ -686,55 +673,6 @@ if (!file_exists($userConfFile)) {
     #service-table td:nth-child(2) {
       min-width: 250px;
       max-width: 300px;
-    }
-    
-    /* Toast notification styles */
-    .toast-container {
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      z-index: 9999;
-    }
-    
-    .toast {
-      background-color: #28a745;
-      color: white;
-      padding: 15px 25px;
-      border-radius: 5px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-      margin-bottom: 10px;
-      opacity: 0;
-      transform: translateY(-20px);
-      transition: opacity 0.3s, transform 0.3s;
-    }
-    
-    .toast.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-    
-    .toast-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 5px;
-    }
-    
-    .toast-title {
-      font-weight: bold;
-    }
-    
-    .toast-close {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.2rem;
-      cursor: pointer;
-      opacity: 0.7;
-    }
-    
-    .toast-close:hover {
-      opacity: 1;
     }
   </style>
 </head>
@@ -795,9 +733,6 @@ if (!file_exists($userConfFile)) {
               </div>
               
               <div class="update-btn-container">
-                <button type="button" class="btn btn-info btn-sm" id="print-btn" style="display:none;">
-                  <i class="fas fa-print mr-1"></i> PRINT
-                </button>
                 <button type="button" class="btn btn-warning btn-sm" id="update-btn" style="display:none;">
                   <i class="fas fa-save mr-1"></i> UPDATE
                 </button>
@@ -1014,41 +949,6 @@ if (!file_exists($userConfFile)) {
     </div>
   </form>
 </div>
-
-<!-- Toast Container -->
-<div class="toast-container" id="toastContainer"></div>
-
-<!-- Login Modal -->
-<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="loginModalLabel">Authentication Required</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <form id="loginForm">
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" class="form-control" id="username" required>
-          </div>
-          <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" required>
-          </div>
-          <div id="loginError" class="text-danger" style="display: none;">Invalid username or password</div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" id="loginSubmit">Login</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 <!-- Loading Overlay (initially hidden) -->
 <div class="loading-overlay" id="loadingOverlay" style="display: none;">
   <div class="loading-spinner"></div>
@@ -1285,48 +1185,6 @@ function clearForm() {
   // Reset totals
   updateTotal();
 }
-// Function to show toast notification
-function showToast(message, type = 'success') {
-  const toastContainer = $('#toastContainer');
-  const toastId = 'toast-' + Date.now();
-  
-  const toast = $(`
-    <div id="${toastId}" class="toast">
-      <div class="toast-header">
-        <span class="toast-title">${type === 'success' ? 'Success' : 'Error'}</span>
-        <button type="button" class="toast-close" data-dismiss="toast" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="toast-body">
-        ${message}
-      </div>
-    </div>
-  `);
-  
-  toastContainer.append(toast);
-  
-  // Show the toast
-  setTimeout(() => {
-    toast.addClass('show');
-  }, 10);
-  
-  // Auto-hide after 3 seconds
-  setTimeout(() => {
-    toast.removeClass('show');
-    setTimeout(() => {
-      toast.remove();
-    }, 300);
-  }, 3000);
-  
-  // Handle close button click
-  toast.find('.toast-close').on('click', function() {
-    toast.removeClass('show');
-    setTimeout(() => {
-      toast.remove();
-    }, 300);
-  });
-}
 $(document).ready(function () {
   // Initialize dark mode
   initDarkMode();
@@ -1377,14 +1235,12 @@ $(document).ready(function () {
       $('#patient_id').prop('readonly', false).attr('type', 'number');
       $('#save-btn').hide();
       $('#clear-btn').hide();
-      $('#update-btn').show();
-      $('#print-btn').show();
+      $('#update-btn').show().css('display', 'inline-block');
     } else {
       $('#patient_id').prop('readonly', true).attr('type', 'text');
       $('#save-btn').show();
       $('#clear-btn').show();
       $('#update-btn').hide();
-      $('#print-btn').hide();
       
       // Clear form when switching off edit mode
       clearForm();
@@ -1478,46 +1334,9 @@ $(document).ready(function () {
     }
   });
   
-  // Update button click: show login modal first
-  $('#update-btn').click(function(e) {
-    e.preventDefault();
-    $('#loginModal').modal('show');
-  });
-  
-  // Print button click: go to receipt.php without saving
-  $('#print-btn').click(function() {
-    const patientId = $('#patient_id').val().trim();
-    if (patientId) {
-      window.open('receipt.php?patient_id=' + encodeURIComponent(patientId), '_blank');
-    } else {
-      showToast('No patient ID available for printing', 'error');
-    }
-  });
-  
-  // Handle login form submission
-  $('#loginSubmit').click(function() {
-    const username = $('#username').val();
-    const password = $('#password').val();
-    
-    // Validate credentials via AJAX
-    $.ajax({
-      url: 'check_credentials.php',
-      type: 'POST',
-      data: { username: username, password: password },
-      dataType: 'json',
-      success: function(response) {
-        if (response.valid) {
-          $('#loginModal').modal('hide');
-          // Submit the form
-          $('#billing-form').submit();
-        } else {
-          $('#loginError').show();
-        }
-      },
-      error: function() {
-        $('#loginError').text('Error validating credentials. Please try again.').show();
-      }
-    });
+  // Update button click: submit the form to save updated data
+  $('#update-btn').click(function() {
+    $('#billing-form').submit();
   });
   
   // Clear button functionality
@@ -1537,7 +1356,6 @@ $(document).ready(function () {
     $('#save-btn').prop('disabled', true);
     $('#clear-btn').prop('disabled', true);
     $('#update-btn').prop('disabled', true);
-    $('#print-btn').prop('disabled', true);
     
     // Serialize form data
     const formData = $(this).serialize();
@@ -1558,12 +1376,11 @@ $(document).ready(function () {
           $('#save-btn').prop('disabled', false);
           $('#clear-btn').prop('disabled', false);
           $('#update-btn').prop('disabled', false);
-          $('#print-btn').prop('disabled', false);
           
           if (response.success) {
-            // If in edit mode, show toast message
+            // If in edit mode, stay on the page and show success message
             if ($('#edit_patient_id').is(':checked')) {
-              showToast('Patient information updated successfully!');
+              alert('Patient information updated successfully!');
               // Reload the data to ensure we have the latest
               const patientId = $('#patient_id').val().trim();
               $.getJSON('get_patient_billing.php', { patient_id: patientId }, function(data) {
@@ -1590,7 +1407,6 @@ $(document).ready(function () {
           $('#save-btn').prop('disabled', false);
           $('#clear-btn').prop('disabled', false);
           $('#update-btn').prop('disabled', false);
-          $('#print-btn').prop('disabled', false);
           
           let errorMessage = 'An error occurred while saving your data.';
           
@@ -1627,7 +1443,6 @@ $(document).ready(function () {
     $('#save-btn').prop('disabled', true);
     $('#clear-btn').prop('disabled', true);
     $('#update-btn').prop('disabled', true);
-    $('#print-btn').prop('disabled', true);
     
     // Attempt submission again
     attemptSubmission();
