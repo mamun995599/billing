@@ -1,4 +1,7 @@
 <?php
+// Set timezone to Asia/Dhaka
+date_default_timezone_set('Asia/Dhaka');
+
 // Database configuration for SQLite
 $dbFile = 'clinic_bill.db'; // SQLite database file
 try {

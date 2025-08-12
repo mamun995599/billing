@@ -1,4 +1,7 @@
 <?php
+// Set timezone to Asia/Dhaka
+date_default_timezone_set('Asia/Dhaka');
+
 // For demo, enable PHP error reporting (disable in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -637,7 +640,7 @@ if (!file_exists($userConfFile)) {
     }
     
     /* Fix for update button not being clickable in mobile browsers */
-    #update-btn, #print-btn {
+    #update-btn, #print-btn, #delete-btn {
       position: relative;
       z-index: 15;
       pointer-events: auto;
@@ -708,6 +711,10 @@ if (!file_exists($userConfFile)) {
       transition: opacity 0.3s, transform 0.3s;
     }
     
+    .toast.error {
+      background-color: #dc3545;
+    }
+    
     .toast.show {
       opacity: 1;
       transform: translateY(0);
@@ -735,6 +742,29 @@ if (!file_exists($userConfFile)) {
     
     .toast-close:hover {
       opacity: 1;
+    }
+    
+    /* Delete confirmation modal */
+    .modal-content {
+      color: var(--text-color);
+      background-color: var(--card-bg);
+    }
+    
+    .modal-header, .modal-footer {
+      border-color: var(--input-border);
+    }
+    
+    .modal-title {
+      color: #dc3545;
+    }
+    
+    .modal-body {
+      color: var(--text-color);
+      font-size: 16px;
+    }
+    
+    .modal-footer .btn {
+      color: white;
     }
   </style>
 </head>
@@ -797,6 +827,9 @@ if (!file_exists($userConfFile)) {
               <div class="update-btn-container">
                 <button type="button" class="btn btn-info btn-sm" id="print-btn" style="display:none;">
                   <i class="fas fa-print mr-1"></i> PRINT
+                </button>
+                <button type="button" class="btn btn-danger btn-sm" id="delete-btn" style="display:none;">
+                  <i class="fas fa-trash-alt mr-1"></i> DELETE
                 </button>
                 <button type="button" class="btn btn-warning btn-sm" id="update-btn" style="display:none;">
                   <i class="fas fa-save mr-1"></i> UPDATE
@@ -1049,6 +1082,29 @@ if (!file_exists($userConfFile)) {
   </div>
 </div>
 
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Delete</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Are you sure you want to delete this patient record? This action cannot be undone.</p>
+        <p><strong>Patient ID:</strong> <span id="deletePatientId"></span></p>
+        <p><strong>Patient Name:</strong> <span id="deletePatientName"></span></p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-danger" id="confirmDelete">Delete</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Loading Overlay (initially hidden) -->
 <div class="loading-overlay" id="loadingOverlay" style="display: none;">
   <div class="loading-spinner"></div>
@@ -1291,7 +1347,7 @@ function showToast(message, type = 'success') {
   const toastId = 'toast-' + Date.now();
   
   const toast = $(`
-    <div id="${toastId}" class="toast">
+    <div id="${toastId}" class="toast ${type === 'error' ? 'error' : ''}">
       <div class="toast-header">
         <span class="toast-title">${type === 'success' ? 'Success' : 'Error'}</span>
         <button type="button" class="toast-close" data-dismiss="toast" aria-label="Close">
@@ -1379,12 +1435,14 @@ $(document).ready(function () {
       $('#clear-btn').hide();
       $('#update-btn').show();
       $('#print-btn').show();
+      $('#delete-btn').show();
     } else {
       $('#patient_id').prop('readonly', true).attr('type', 'text');
       $('#save-btn').show();
       $('#clear-btn').show();
       $('#update-btn').hide();
       $('#print-btn').hide();
+      $('#delete-btn').hide();
       
       // Clear form when switching off edit mode
       clearForm();
@@ -1478,26 +1536,71 @@ $(document).ready(function () {
     }
   });
   
-  // Update button click: show login modal first
+  // Update button click: validate patient ID first, then show login modal
   $('#update-btn').click(function(e) {
     e.preventDefault();
+    
+    // Check if patient ID is empty
+    const patientId = $('#patient_id').val().trim();
+    if (!patientId) {
+      showToast('Please enter a valid Patient ID', 'error');
+      return;
+    }
+    
+    // Set action type to update
+    $('#loginModal').data('action', 'update');
+    
+    // Show login modal
     $('#loginModal').modal('show');
   });
   
-  // Print button click: go to receipt.php without saving
+  // Delete button click: validate patient ID first, then show confirmation modal
+  $('#delete-btn').click(function(e) {
+    e.preventDefault();
+    
+    // Check if patient ID is empty
+    const patientId = $('#patient_id').val().trim();
+    if (!patientId) {
+      showToast('Please enter a valid Patient ID', 'error');
+      return;
+    }
+    
+    // Set patient info in confirmation modal
+    $('#deletePatientId').text(patientId);
+    $('#deletePatientName').text($('#patient_name').val() || 'N/A');
+    
+    // Show delete confirmation modal
+    $('#deleteConfirmModal').modal('show');
+  });
+  
+  // Confirm delete button click: show login modal
+  $('#confirmDelete').click(function() {
+    // Hide delete confirmation modal
+    $('#deleteConfirmModal').modal('hide');
+    
+    // Set action type to delete
+    $('#loginModal').data('action', 'delete');
+    
+    // Show login modal
+    $('#loginModal').modal('show');
+  });
+  
+  // Print button click: validate patient ID first, then go to receipt.php
   $('#print-btn').click(function() {
     const patientId = $('#patient_id').val().trim();
-    if (patientId) {
-      window.open('receipt.php?patient_id=' + encodeURIComponent(patientId), '_blank');
-    } else {
-      showToast('No patient ID available for printing', 'error');
+    if (!patientId) {
+      showToast('Please enter a valid Patient ID', 'error');
+      return;
     }
+    
+    window.open('receipt.php?patient_id=' + encodeURIComponent(patientId), '_blank');
   });
   
   // Handle login form submission
   $('#loginSubmit').click(function() {
     const username = $('#username').val();
     const password = $('#password').val();
+    const action = $('#loginModal').data('action') || 'update';
     
     // Validate credentials via AJAX
     $.ajax({
@@ -1508,8 +1611,14 @@ $(document).ready(function () {
       success: function(response) {
         if (response.valid) {
           $('#loginModal').modal('hide');
-          // Submit the form
-          $('#billing-form').submit();
+          
+          if (action === 'update') {
+            // Submit the form for update
+            $('#billing-form').submit();
+          } else if (action === 'delete') {
+            // Perform delete operation
+            deletePatient();
+          }
         } else {
           $('#loginError').show();
         }
@@ -1519,6 +1628,73 @@ $(document).ready(function () {
       }
     });
   });
+  
+  // Function to delete patient record
+  function deletePatient() {
+    const patientId = $('#patient_id').val().trim();
+    
+    // Show loading overlay
+    $('#loadingOverlay').show();
+    
+    // Disable buttons
+    $('#update-btn').prop('disabled', true);
+    $('#delete-btn').prop('disabled', true);
+    $('#print-btn').prop('disabled', true);
+    
+    $.ajax({
+      url: 'delete_patient.php',
+      type: 'POST',
+      data: { patient_id: patientId },
+      dataType: 'json',
+      success: function(response) {
+        // Hide loading overlay
+        $('#loadingOverlay').hide();
+        
+        // Re-enable buttons
+        $('#update-btn').prop('disabled', false);
+        $('#delete-btn').prop('disabled', false);
+        $('#print-btn').prop('disabled', false);
+        
+        if (response.success) {
+          // Show success message
+          showToast('Patient record deleted successfully');
+          
+          // Turn off edit mode
+          $('#edit_patient_id').prop('checked', false);
+          $('#patient_id').prop('readonly', true).attr('type', 'text');
+          $('#save-btn').show();
+          $('#clear-btn').show();
+          $('#update-btn').hide();
+          $('#print-btn').hide();
+          $('#delete-btn').hide();
+          
+          // Clear the form
+          clearForm();
+        } else {
+          // Show error message
+          showToast(response.message || 'Error deleting patient record', 'error');
+        }
+      },
+      error: function(xhr, status, error) {
+        // Hide loading overlay
+        $('#loadingOverlay').hide();
+        
+        // Re-enable buttons
+        $('#update-btn').prop('disabled', false);
+        $('#delete-btn').prop('disabled', false);
+        $('#print-btn').prop('disabled', false);
+        
+        let errorMessage = 'Error deleting patient record';
+        
+        if (xhr.responseJSON && xhr.responseJSON.message) {
+          errorMessage = xhr.responseJSON.message;
+        }
+        
+        // Show error message
+        showToast(errorMessage, 'error');
+      }
+    });
+  }
   
   // Clear button functionality
   $('#clear-btn').on('click', function(e) {
@@ -1538,6 +1714,7 @@ $(document).ready(function () {
     $('#clear-btn').prop('disabled', true);
     $('#update-btn').prop('disabled', true);
     $('#print-btn').prop('disabled', true);
+    $('#delete-btn').prop('disabled', true);
     
     // Serialize form data
     const formData = $(this).serialize();
@@ -1559,6 +1736,7 @@ $(document).ready(function () {
           $('#clear-btn').prop('disabled', false);
           $('#update-btn').prop('disabled', false);
           $('#print-btn').prop('disabled', false);
+          $('#delete-btn').prop('disabled', false);
           
           if (response.success) {
             // If in edit mode, show toast message
@@ -1591,6 +1769,7 @@ $(document).ready(function () {
           $('#clear-btn').prop('disabled', false);
           $('#update-btn').prop('disabled', false);
           $('#print-btn').prop('disabled', false);
+          $('#delete-btn').prop('disabled', false);
           
           let errorMessage = 'An error occurred while saving your data.';
           
@@ -1628,6 +1807,7 @@ $(document).ready(function () {
     $('#clear-btn').prop('disabled', true);
     $('#update-btn').prop('disabled', true);
     $('#print-btn').prop('disabled', true);
+    $('#delete-btn').prop('disabled', true);
     
     // Attempt submission again
     attemptSubmission();

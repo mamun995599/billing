@@ -1,5 +1,6 @@
 <?php
 // Start output buffering to prevent any accidental output
+date_default_timezone_set('Asia/Dhaka');
 ob_start();
 include 'db_sqlite.php';
 try {
