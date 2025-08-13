@@ -13,6 +13,7 @@ $sql = "
     p.patient_id,
     p.patient_name,
     p.phone,
+    p.email,
     p.ref_doctors AS doctor,
     p.ref_name,
     GROUP_CONCAT(b.service_name, '; ') AS services,
@@ -36,7 +37,7 @@ if (!empty($_GET['doctor'])) {
         $params[] = $_GET['doctor'];
     }
 }
-$sql .= " GROUP BY p.patient_id, p.date, p.patient_name, p.phone, p.ref_doctors, p.ref_name, p.paid, p.less_total
+$sql .= " GROUP BY p.patient_id, p.date, p.patient_name, p.phone, p.email, p.ref_doctors, p.ref_name, p.paid, p.less_total
   ORDER BY p.date DESC";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($params);
@@ -59,6 +60,10 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     .dataTables_wrapper { padding: 10px; }
     .dt-buttons { margin-bottom: 10px; }
     .discount-column { background-color: #f8f9fa; }
+    .dataTables_length { margin-bottom: 10px; }
+    .dataTables_filter { margin-bottom: 10px; }
+    .dataTables_info { margin-top: 10px; }
+    .dataTables_paginate { margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -90,6 +95,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         <th>Patient ID</th>
         <th>Patient Name</th>
         <th>Phone</th>
+        <th>Email</th>
         <th>Doctor</th>
         <th>Ref Name</th>
         <th>Services</th>
@@ -106,6 +112,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
           <td><?= $row['patient_id'] ?></td>
           <td><?= htmlspecialchars($row['patient_name']) ?></td>
           <td><?= htmlspecialchars($row['phone']) ?></td>
+          <td><?= htmlspecialchars($row['email'] ?? 'N/A') ?></td>
           <td><?= htmlspecialchars($row['doctor'] ?? 'N/A') ?></td>
           <td><?= htmlspecialchars($row['ref_name'] ?? 'N/A') ?></td>
           <td><?= htmlspecialchars($row['services']) ?></td>
@@ -118,7 +125,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </tbody>
     <tfoot>
       <tr>
-        <th colspan="7" class="text-right">Total</th>
+        <th colspan="8" class="text-right">Total</th>
         <th></th>
         <th></th>
         <th></th>
@@ -143,23 +150,24 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <script>
 $(document).ready(function () {
   $('#billingTable').DataTable({
-    dom: 'Bfrtip',
+    dom: 'Blfrtip', // Added 'l' for length menu
     buttons: ['excel', 'csv', 'pdf', 'print'],
     pageLength: 25,
+    lengthMenu: [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
     footerCallback: function (row, data, start, end, display) {
       const intVal = i => typeof i === 'string' ? parseFloat(i.replace(/,/g, '')) : (typeof i === 'number' ? i : 0);
       const api = this.api();
       
-      // Update totals for columns 7 (Total), 8 (Less), 9 (Paid), 10 (Due)
-      const total = api.column(7, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
-      const discount = api.column(8, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
-      const paid = api.column(9, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
-      const due = api.column(10, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+      // Update totals for columns 8 (Total), 9 (Less), 10 (Paid), 11 (Due)
+      const total = api.column(8, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+      const discount = api.column(9, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+      const paid = api.column(10, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
+      const due = api.column(11, { page: 'current' }).data().reduce((a, b) => intVal(a) + intVal(b), 0);
       
-      $(api.column(7).footer()).html(total.toFixed(2));
-      $(api.column(8).footer()).html(discount.toFixed(2));
-      $(api.column(9).footer()).html(paid.toFixed(2));
-      $(api.column(10).footer()).html(due.toFixed(2));
+      $(api.column(8).footer()).html(total.toFixed(2));
+      $(api.column(9).footer()).html(discount.toFixed(2));
+      $(api.column(10).footer()).html(paid.toFixed(2));
+      $(api.column(11).footer()).html(due.toFixed(2));
     }
   });
 });

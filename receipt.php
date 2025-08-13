@@ -242,7 +242,13 @@ $totalInWords = numberToWords($total) . ' taka only';
     <strong>Name:</strong> <?= $patient['patient_name'] ?> <strong>Sex:</strong> <?= $patient['sex'] ?> <strong>Age:</strong> <?= $patient['age'] ?> 
   </div>
   <div class="receipt-info">
-    <strong>Address:</strong> <?= $patient['address'] ?><strong>Mobile:</strong> <?= $patient['phone'] ?>
+    <strong>Address:</strong> <?= $patient['address'] ?>
+  </div>
+  <div class="receipt-info">
+    <strong>Mobile:</strong> <?= $patient['phone'] ?>
+  </div>
+  <div class="receipt-info">
+    <strong>Email:</strong> <?= $patient['email'] ?? 'N/A' ?>
   </div>
   <div class="receipt-info">
     <strong>Ref.Doctor:</strong> <?= $patient['ref_doctors'] ?>

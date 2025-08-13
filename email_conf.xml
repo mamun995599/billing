@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+    <email>
+        <host>smtp.gmail.com</host>
+        <port>465</port>
+        <username>prince.am34@gmail.com</username>
+        <password>zvsi pvfd bpcb bjwm</password>
+        <from>prince.am34@gmail.com</from>
+        <from_name>Clinic Billing System</from_name>
+    </email>
+</config>

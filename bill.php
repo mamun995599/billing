@@ -1,7 +1,6 @@
 <?php
 // Set timezone to Asia/Dhaka
 date_default_timezone_set('Asia/Dhaka');
-
 // For demo, enable PHP error reporting (disable in production)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -9,7 +8,14 @@ ini_set('display_errors', 1);
 $smsConfig = simplexml_load_file('sms_conf.xml');
 $smsHost = (string)$smsConfig->sms->host;
 $smsPort = (string)$smsConfig->sms->port;
-
+// Load email configuration
+$emailConfig = simplexml_load_file('email_conf.xml');
+$emailHost = (string)$emailConfig->email->host;
+$emailPort = (string)$emailConfig->email->port;
+$emailUsername = (string)$emailConfig->email->username;
+$emailPassword = (string)$emailConfig->email->password;
+$emailFrom = (string)$emailConfig->email->from;
+$emailFromName = (string)$emailConfig->email->from_name;
 // Check if user_conf.xml exists, if not create it with default credentials
 $userConfFile = 'user_conf.xml';
 if (!file_exists($userConfFile)) {
@@ -544,6 +550,27 @@ if (!file_exists($userConfFile)) {
       flex: 1;
     }
     
+    /* Email configuration styles */
+    .email-config {
+      display: none;
+      background-color: var(--summary-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 5px;
+      padding: 10px;
+      margin-top: 10px;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    
+    .email-config-row {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .email-config .form-group {
+      margin-bottom: 0;
+      flex: 1;
+    }
+    
     /* Dark mode toggle switch */
     .dark-mode-toggle {
       position: relative;
@@ -873,6 +900,13 @@ if (!file_exists($userConfFile)) {
             </div>
           </div>
           <div class="form-group col-md-3">
+            <label for="email">Email</label>
+            <input type="email" name="email" id="email" class="form-control" />
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group col-md-12">
             <label for="address">Address</label>
             <input type="text" name="address" id="address" class="form-control capitalize-input" pattern="[A-Za-z0-9\s,.-]+" title="Only English characters allowed" />
           </div>
@@ -1027,6 +1061,47 @@ if (!file_exists($userConfFile)) {
                 </div>
               </div>
             </div>
+            
+            <div class="custom-control custom-switch custom-switch-lg mt-3">
+              <input type="checkbox" class="custom-control-input" id="send_email" name="send_email">
+              <label class="custom-control-label" for="send_email">
+                <i class="fas fa-envelope mr-1"></i> Send Email Notification
+              </label>
+            </div>
+            
+            <!-- Email Configuration Fields (initially hidden) -->
+            <div class="email-config" id="emailConfig">
+              <div class="email-config-row">
+                <div class="form-group">
+                  <label for="email_host">SMTP Host</label>
+                  <input type="text" name="email_host" id="email_host" class="form-control" value="<?= htmlspecialchars($emailHost) ?>" />
+                </div>
+                <div class="form-group">
+                  <label for="email_port">SMTP Port</label>
+                  <input type="text" name="email_port" id="email_port" class="form-control" value="<?= htmlspecialchars($emailPort) ?>" />
+                </div>
+              </div>
+              <div class="email-config-row mt-2">
+                <div class="form-group">
+                  <label for="email_username">SMTP Username</label>
+                  <input type="text" name="email_username" id="email_username" class="form-control" value="<?= htmlspecialchars($emailUsername) ?>" />
+                </div>
+                <div class="form-group">
+                  <label for="email_password">SMTP Password</label>
+                  <input type="password" name="email_password" id="email_password" class="form-control" value="<?= htmlspecialchars($emailPassword) ?>" />
+                </div>
+              </div>
+              <div class="email-config-row mt-2">
+                <div class="form-group">
+                  <label for="email_from">From Email</label>
+                  <input type="email" name="email_from" id="email_from" class="form-control" value="<?= htmlspecialchars($emailFrom) ?>" />
+                </div>
+                <div class="form-group">
+                  <label for="email_from_name">From Name</label>
+                  <input type="text" name="email_from_name" id="email_from_name" class="form-control" value="<?= htmlspecialchars($emailFromName) ?>" />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1047,10 +1122,8 @@ if (!file_exists($userConfFile)) {
     </div>
   </form>
 </div>
-
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
-
 <!-- Login Modal -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -1081,7 +1154,6 @@ if (!file_exists($userConfFile)) {
     </div>
   </div>
 </div>
-
 <!-- Delete Confirmation Modal -->
 <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -1104,7 +1176,6 @@ if (!file_exists($userConfFile)) {
     </div>
   </div>
 </div>
-
 <!-- Loading Overlay (initially hidden) -->
 <div class="loading-overlay" id="loadingOverlay" style="display: none;">
   <div class="loading-spinner"></div>
@@ -1401,6 +1472,20 @@ $(document).ready(function () {
     $('#smsConfig').show();
   }
   
+  // Show/hide email configuration based on email switch
+  $('#send_email').change(function() {
+    if ($(this).is(':checked')) {
+      $('#emailConfig').slideDown();
+    } else {
+      $('#emailConfig').slideUp();
+    }
+  });
+  
+  // Initially show email config if switch is checked
+  if ($('#send_email').is(':checked')) {
+    $('#emailConfig').show();
+  }
+  
   bindEvents();
   
   // Bind autocomplete on existing rows
@@ -1453,13 +1538,14 @@ $(document).ready(function () {
   $('#old_id').on('change', function() {
     const oldId = $(this).val().trim();
     if (oldId) {
-      $.getJSON('get_patient_by_old_id.php', { old_id: oldId }, function(data) {
+      $.getJSON('get_patient_info_by_id.php', { old_id: oldId }, function(data) {
         if (data && data.patient) {
           const p = data.patient;
           $('#phone').val(p.phone || '');
           $('#patient_name').val(p.patient_name || '');
           $('#sex').val(p.sex || 'Male');
           $('#address').val(p.address || '');
+          $('#email').val(p.email || '');
         }
       });
     }
@@ -1491,6 +1577,7 @@ $(document).ready(function () {
             $('input[name="age_month"]').val(ageMatch && ageMatch[2] ? ageMatch[2] : '');
             $('input[name="age_day"]').val(ageMatch && ageMatch[3] ? ageMatch[3] : '');
             $('input[name="phone"]').val(p.phone || '');
+            $('input[name="email"]').val(p.email || '');
             $('input[name="address"]').val(p.address || '');
             $('input[name="ref_doctors"]').val(p.ref_doctors || '');
             $('input[name="ref_name"]').val(p.ref_name || '');
@@ -1501,6 +1588,7 @@ $(document).ready(function () {
             $('input[name="less_percent_total"]').val(p.less_percent_total || '0');
             $('input[name="paid"]').val(p.paid || '0');
             $('input[name="send_sms"]').prop('checked', p.send_sms ? true : false);
+            $('input[name="send_email"]').prop('checked', p.send_email ? true : false);
             
             // Set the flag for which discount was last changed
             if (p.less_total > 0) {

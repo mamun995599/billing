@@ -1,7 +1,6 @@
 <?php
 // Set timezone to Asia/Dhaka
 date_default_timezone_set('Asia/Dhaka');
-
 // Database configuration for SQLite
 $dbFile = 'clinic_bill.db'; // SQLite database file
 try {
@@ -22,6 +21,7 @@ try {
         sex TEXT,
         age TEXT,
         phone TEXT,
+        email TEXT,
         ref_doctors TEXT,
         ref_name TEXT,
         delivery_date TEXT,
@@ -31,6 +31,7 @@ try {
         less_percent_total REAL,
         paid REAL,
         send_sms INTEGER,
+        send_email INTEGER,
         created_at TEXT,
         updated_at TEXT,
         address TEXT
