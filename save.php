@@ -3,12 +3,10 @@
 date_default_timezone_set('Asia/Dhaka');
 ob_start();
 include 'db_sqlite.php';
-
 // Load SMS configuration
 $smsConfig = simplexml_load_file('sms_conf.xml');
 $smsHost = (string)$smsConfig->sms->host;
 $smsPort = (string)$smsConfig->sms->port;
-
 // Load email configuration
 $emailConfig = simplexml_load_file('email_conf.xml');
 $emailHost = (string)$emailConfig->email->host;
@@ -17,7 +15,6 @@ $emailUsername = (string)$emailConfig->email->username;
 $emailPassword = (string)$emailConfig->email->password;
 $emailFrom = (string)$emailConfig->email->from;
 $emailFromName = (string)$emailConfig->email->from_name;
-
 
 try {
     $pdo->beginTransaction();
@@ -63,6 +60,7 @@ try {
     $email_password = $_POST['email_password'] ?? null;
     $email_from = $_POST['email_from'] ?? null;
     $email_from_name = $_POST['email_from_name'] ?? null;
+   
     
     if ($is_update) {
         // UPDATE existing patient
@@ -301,9 +299,41 @@ try {
                 
                 $mail->AltBody .= ".\n\nThank you for choosing our clinic.";
                 
-                $mail->send();
+                // Check for internet connection before sending
+                $connected = @fsockopen("www.google.com", 80); 
+                if ($connected) {
+                    fclose($connected);
+                    $mail->send();
+                } else {
+                    // No internet connection, store email for later sending
+                    $stmt = $pdo->prepare("INSERT INTO pending_emails (patient_id, email, subject, body, alt_body, created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                    $stmt->execute([
+                        $patient_id,
+                        $email,
+                        $mail->Subject,
+                        $mail->Body,
+                        $mail->AltBody,
+                        $timestamp,
+                        'pending'
+                    ]);
+                    $notification_errors['email'] = "No internet connection. Email saved for later sending.";
+                }
             } catch (Exception $e) {
-                $notification_errors['email'] = "Email sending failed: " . $mail->ErrorInfo;
+                // Store email for later sending if sending fails
+                $stmt = $pdo->prepare("INSERT INTO pending_emails (patient_id, email, subject, body, alt_body, created_at, status) VALUES (?, ?, ?, ?, ?, ?, ?)");
+                $stmt->execute([
+                    $patient_id,
+                    $email,
+                    'Your Clinic Bill Information',
+                    $emailBody ?? '',
+                    "Dear $patient_name,\n\nYour total bill is BDT " . number_format($total, 2) . 
+                    ", paid BDT " . number_format($paid, 2) .
+                    ($due > 0 ? " and your due is BDT " . number_format($due, 2) : "") .
+                    ".\n\nThank you for choosing our clinic.",
+                    $timestamp,
+                    'failed'
+                ]);
+                $notification_errors['email'] = "Email sending failed: " . $mail->ErrorInfo . ". Email saved for retry.";
             }
         }
     }

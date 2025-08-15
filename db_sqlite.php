@@ -56,6 +56,29 @@ try {
         price REAL NOT NULL
     )");
     
+    // Create referrals table
+    $pdo->exec("CREATE TABLE IF NOT EXISTS referrals (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        doctor_name TEXT NOT NULL,
+        ref_name TEXT,
+        UNIQUE(doctor_name, ref_name)
+    )");
+    
+    // Create pending_emails table for offline email handling
+    $pdo->exec("CREATE TABLE IF NOT EXISTS pending_emails (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        patient_id INTEGER,
+        email TEXT NOT NULL,
+        subject TEXT NOT NULL,
+        body TEXT NOT NULL,
+        alt_body TEXT,
+        created_at TEXT NOT NULL,
+        attempts INTEGER DEFAULT 0,
+        last_attempt TEXT,
+        status TEXT DEFAULT 'pending',
+        FOREIGN KEY (patient_id) REFERENCES patients(patient_id)
+    )");
+    
 } catch (PDOException $e) {
     // Handle error
     throw new PDOException($e->getMessage(), (int)$e->getCode());

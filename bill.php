@@ -742,6 +742,11 @@ if (!file_exists($userConfFile)) {
       background-color: #dc3545;
     }
     
+    .toast.warning {
+      background-color: #ffc107;
+      color: #212529;
+    }
+    
     .toast.show {
       opacity: 1;
       transform: translateY(0);
@@ -792,6 +797,33 @@ if (!file_exists($userConfFile)) {
     
     .modal-footer .btn {
       color: white;
+    }
+    
+    /* Auto-save indicator */
+    .auto-save-indicator {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: rgba(40, 167, 69, 0.9);
+      color: white;
+      padding: 8px 15px;
+      border-radius: 4px;
+      font-size: 14px;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+    
+    .auto-save-indicator.show {
+      display: block;
+      animation: fadeInOut 2s ease-in-out;
+    }
+    
+    @keyframes fadeInOut {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
     }
   </style>
 </head>
@@ -923,11 +955,11 @@ if (!file_exists($userConfFile)) {
         <div class="form-row">
           <div class="form-group col-md-4">
             <label for="ref_doctors">Ref. Doctors</label>
-            <input type="text" name="ref_doctors" class="form-control capitalize-input" />
+            <input type="text" name="ref_doctors" id="ref_doctors" class="form-control capitalize-input" />
           </div>
           <div class="form-group col-md-4">
             <label for="ref_name">Ref Name</label>
-            <input type="text" name="ref_name" class="form-control capitalize-input" />
+            <input type="text" name="ref_name" id="ref_name" class="form-control capitalize-input" />
           </div>
           <div class="form-group col-md-2">
             <label for="delivery_date">Delivery Date</label>
@@ -1053,11 +1085,11 @@ if (!file_exists($userConfFile)) {
               <div class="sms-config-row">
                 <div class="form-group">
                   <label for="sms_host">SMS Host</label>
-                  <input type="text" name="sms_host" id="sms_host" class="form-control" value="<?= htmlspecialchars($smsHost) ?>" />
+                  <input type="text" name="sms_host" id="sms_host" class="form-control config-field" data-config-type="sms" data-config-field="host" value="<?= htmlspecialchars($smsHost) ?>" />
                 </div>
                 <div class="form-group">
                   <label for="sms_port">SMS Port</label>
-                  <input type="text" name="sms_port" id="sms_port" class="form-control" value="<?= htmlspecialchars($smsPort) ?>" />
+                  <input type="text" name="sms_port" id="sms_port" class="form-control config-field" data-config-type="sms" data-config-field="port" value="<?= htmlspecialchars($smsPort) ?>" />
                 </div>
               </div>
             </div>
@@ -1074,31 +1106,31 @@ if (!file_exists($userConfFile)) {
               <div class="email-config-row">
                 <div class="form-group">
                   <label for="email_host">SMTP Host</label>
-                  <input type="text" name="email_host" id="email_host" class="form-control" value="<?= htmlspecialchars($emailHost) ?>" />
+                  <input type="text" name="email_host" id="email_host" class="form-control config-field" data-config-type="email" data-config-field="host" value="<?= htmlspecialchars($emailHost) ?>" />
                 </div>
                 <div class="form-group">
                   <label for="email_port">SMTP Port</label>
-                  <input type="text" name="email_port" id="email_port" class="form-control" value="<?= htmlspecialchars($emailPort) ?>" />
+                  <input type="text" name="email_port" id="email_port" class="form-control config-field" data-config-type="email" data-config-field="port" value="<?= htmlspecialchars($emailPort) ?>" />
                 </div>
               </div>
               <div class="email-config-row mt-2">
                 <div class="form-group">
                   <label for="email_username">SMTP Username</label>
-                  <input type="text" name="email_username" id="email_username" class="form-control" value="<?= htmlspecialchars($emailUsername) ?>" />
+                  <input type="text" name="email_username" id="email_username" class="form-control config-field" data-config-type="email" data-config-field="username" value="<?= htmlspecialchars($emailUsername) ?>" />
                 </div>
                 <div class="form-group">
                   <label for="email_password">SMTP Password</label>
-                  <input type="password" name="email_password" id="email_password" class="form-control" value="<?= htmlspecialchars($emailPassword) ?>" />
+                  <input type="password" name="email_password" id="email_password" class="form-control config-field" data-config-type="email" data-config-field="password" value="<?= htmlspecialchars($emailPassword) ?>" />
                 </div>
               </div>
               <div class="email-config-row mt-2">
                 <div class="form-group">
                   <label for="email_from">From Email</label>
-                  <input type="email" name="email_from" id="email_from" class="form-control" value="<?= htmlspecialchars($emailFrom) ?>" />
+                  <input type="email" name="email_from" id="email_from" class="form-control config-field" data-config-type="email" data-config-field="from" value="<?= htmlspecialchars($emailFrom) ?>" />
                 </div>
                 <div class="form-group">
                   <label for="email_from_name">From Name</label>
-                  <input type="text" name="email_from_name" id="email_from_name" class="form-control" value="<?= htmlspecialchars($emailFromName) ?>" />
+                  <input type="text" name="email_from_name" id="email_from_name" class="form-control config-field" data-config-type="email" data-config-field="from_name" value="<?= htmlspecialchars($emailFromName) ?>" />
                 </div>
               </div>
             </div>
@@ -1124,6 +1156,10 @@ if (!file_exists($userConfFile)) {
 </div>
 <!-- Toast Container -->
 <div class="toast-container" id="toastContainer"></div>
+<!-- Auto-save Indicator -->
+<div class="auto-save-indicator" id="autoSaveIndicator">
+  <i class="fas fa-check-circle mr-1"></i> Configuration saved
+</div>
 <!-- Login Modal -->
 <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
   <div class="modal-dialog">
@@ -1357,6 +1393,43 @@ function bindServiceAutocomplete(row) {
     minLength: 1
   });
 }
+// Referral Doctors autocomplete
+function bindReferralAutocomplete() {
+  $('#ref_doctors').autocomplete({
+    source: function(request, response) {
+      $.ajax({
+        url: 'referrals_search.php',
+        dataType: 'json',
+        data: { 
+          term: request.term,
+          field: 'doctor'
+        },
+        success: function(data) {
+          response(data);
+        }
+      });
+    },
+    minLength: 1
+  });
+  
+  $('#ref_name').autocomplete({
+    source: function(request, response) {
+      $.ajax({
+        url: 'referrals_search.php',
+        dataType: 'json',
+        data: { 
+          term: request.term,
+          field: 'ref_name'
+        },
+        success: function(data) {
+          response(data);
+        }
+      });
+    },
+    minLength: 1
+  });
+}
+
 // Dark mode functionality
 function initDarkMode() {
   const darkModeToggle = document.getElementById('darkModeToggle');
@@ -1418,9 +1491,9 @@ function showToast(message, type = 'success') {
   const toastId = 'toast-' + Date.now();
   
   const toast = $(`
-    <div id="${toastId}" class="toast ${type === 'error' ? 'error' : ''}">
+    <div id="${toastId}" class="toast ${type === 'error' ? 'error' : ''} ${type === 'warning' ? 'warning' : ''}">
       <div class="toast-header">
-        <span class="toast-title">${type === 'success' ? 'Success' : 'Error'}</span>
+        <span class="toast-title">${type === 'success' ? 'Success' : type === 'error' ? 'Error' : 'Warning'}</span>
         <button type="button" class="toast-close" data-dismiss="toast" aria-label="Close">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -1452,6 +1525,34 @@ function showToast(message, type = 'success') {
     setTimeout(() => {
       toast.remove();
     }, 300);
+  });
+}
+// Function to save configuration automatically
+function saveConfiguration(configType, field, value) {
+  $.ajax({
+    url: 'save_config.php',
+    type: 'POST',
+    data: {
+      config_type: configType,
+      field: field,
+      value: value
+    },
+    dataType: 'json',
+    success: function(response) {
+      if (response.success) {
+        // Show auto-save indicator
+        const indicator = $('#autoSaveIndicator');
+        indicator.addClass('show');
+        setTimeout(() => {
+          indicator.removeClass('show');
+        }, 2000);
+      } else {
+        showToast('Failed to save configuration: ' + response.message, 'error');
+      }
+    },
+    error: function() {
+      showToast('Error saving configuration', 'error');
+    }
   });
 }
 $(document).ready(function () {
@@ -1492,6 +1593,9 @@ $(document).ready(function () {
   $('#service-table tbody tr').each(function() {
     bindServiceAutocomplete($(this));
   });
+  
+  // Bind referral autocomplete
+  bindReferralAutocomplete();
   
   // Add new row
   $('#add-row').click(function () {
@@ -1548,6 +1652,17 @@ $(document).ready(function () {
           $('#email').val(p.email || '');
         }
       });
+    }
+  });
+  
+  // Auto-save configuration when fields lose focus
+  $('.config-field').on('blur', function() {
+    const configType = $(this).data('config-type');
+    const field = $(this).data('config-field');
+    const value = $(this).val();
+    
+    if (configType && field && value !== undefined) {
+      saveConfiguration(configType, field, value);
     }
   });
   
@@ -1841,6 +1956,16 @@ $(document).ready(function () {
             } else {
               // Redirect to receipt page on success for new entries
               window.location.href = 'receipt.php?patient_id=' + encodeURIComponent(response.patient_id);
+            }
+            
+            // Check for notification errors
+            if (response.notification_errors) {
+              if (response.notification_errors.email) {
+                showToast('Email could not be sent: ' + response.notification_errors.email, 'warning');
+              }
+              if (response.notification_errors.sms) {
+                showToast('SMS could not be sent: ' + response.notification_errors.sms, 'warning');
+              }
             }
           } else {
             // Show error message
