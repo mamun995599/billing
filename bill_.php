@@ -1074,7 +1074,7 @@ if (!file_exists($userConfFile)) {
           </div>
           <div class="form-group col-md-4">
             <div class="custom-control custom-switch custom-switch-lg mt-4">
-              <input type="checkbox" class="custom-control-input" id="send_sms" name="send_sms">
+              <input type="checkbox" class="custom-control-input" id="send_sms" name="send_sms" checked>
               <label class="custom-control-label" for="send_sms">
                 <i class="fas fa-sms mr-1"></i> Send SMS Notification
               </label>
@@ -1429,6 +1429,7 @@ function bindReferralAutocomplete() {
     minLength: 1
   });
 }
+
 // Dark mode functionality
 function initDarkMode() {
   const darkModeToggle = document.getElementById('darkModeToggle');
@@ -1558,30 +1559,8 @@ $(document).ready(function () {
   // Initialize dark mode
   initDarkMode();
   
-  // Load saved toggle states
-  const sendSmsState = localStorage.getItem('send_sms') === 'true';
-  const sendEmailState = localStorage.getItem('send_email') === 'true';
-  
-  // Set initial states
-  $('#send_sms').prop('checked', sendSmsState);
-  $('#send_email').prop('checked', sendEmailState);
-  
-  // Show/hide configurations based on saved states
-  if (sendSmsState) {
-    $('#smsConfig').show();
-  } else {
-    $('#smsConfig').hide();
-  }
-  
-  if (sendEmailState) {
-    $('#emailConfig').show();
-  } else {
-    $('#emailConfig').hide();
-  }
-  
-  // Save state when toggles are changed
+  // Show/hide SMS configuration based on SMS switch
   $('#send_sms').change(function() {
-    localStorage.setItem('send_sms', $(this).is(':checked'));
     if ($(this).is(':checked')) {
       $('#smsConfig').slideDown();
     } else {
@@ -1589,14 +1568,24 @@ $(document).ready(function () {
     }
   });
   
+  // Initially show SMS config if switch is checked
+  if ($('#send_sms').is(':checked')) {
+    $('#smsConfig').show();
+  }
+  
+  // Show/hide email configuration based on email switch
   $('#send_email').change(function() {
-    localStorage.setItem('send_email', $(this).is(':checked'));
     if ($(this).is(':checked')) {
       $('#emailConfig').slideDown();
     } else {
       $('#emailConfig').slideUp();
     }
   });
+  
+  // Initially show email config if switch is checked
+  if ($('#send_email').is(':checked')) {
+    $('#emailConfig').show();
+  }
   
   bindEvents();
   
