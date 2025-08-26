@@ -124,63 +124,84 @@ try {
     
     // SEND SMS if checked
     if ($send_sms && !empty($phone) && !empty($sms_host) && !empty($sms_port)) {
-        $sms_message = "Dear $patient_name, your total bill is BDT " . number_format($total, 2);
-        $sms_message .= ", paid BDT " . number_format($paid, 2);
-        if ($due > 0) {
-            $sms_message .= " and your due is BDT " . number_format($due, 2);
-        }
-        $sms_message .= ". Thank you.";
-        
-        $data = json_encode([
-            "phone" => $phone,
-            "message" => $sms_message
-        ]);
-        
-        try {
-            $fp = stream_socket_client("tcp://$sms_host:$sms_port", $errno, $errstr, 5);
-            if (!$fp) {
-                $notification_errors['sms'] = "SMS connection failed: $errstr ($errno)";
+    $sms_message = "Dear $patient_name, your total bill is BDT " . number_format($total, 2);
+    $sms_message .= ", paid BDT " . number_format($paid, 2);
+    if ($due > 0) {
+        $sms_message .= " and your due is BDT " . number_format($due, 2);
+    }
+    $sms_message .= ". Thank you.";
+    
+    try {
+        // Create WebSocket connection
+        $fp = stream_socket_client("tcp://$sms_host:$sms_port", $errno, $errstr, 5);
+        if (!$fp) {
+            $notification_errors['sms'] = "SMS connection failed: $errstr ($errno)";
+        } else {
+            // Generate a random key for WebSocket handshake
+            $key = base64_encode(openssl_random_pseudo_bytes(16));
+            
+            // Send WebSocket handshake
+            $handshake = "GET / HTTP/1.1\r\n" .
+                        "Host: $sms_host:$sms_port\r\n" .
+                        "Upgrade: websocket\r\n" .
+                        "Connection: Upgrade\r\n" .
+                        "Sec-WebSocket-Key: $key\r\n" .
+                        "Sec-WebSocket-Version: 13\r\n" .
+                        "Origin: http://$sms_host\r\n" .
+                        "\r\n";
+            
+            fwrite($fp, $handshake);
+            
+            // Read handshake response
+            $response = fread($fp, 1500);
+            
+            // Check for successful handshake
+            $statusLine = explode("\r\n", $response)[0];
+            if (stripos($statusLine, '101') === false) {
+                $notification_errors['sms'] = "WebSocket handshake failed. Expected HTTP 101, got: $statusLine";
+                fclose($fp);
+            } elseif (stripos($response, 'upgrade: websocket') === false) {
+                $notification_errors['sms'] = "WebSocket handshake failed. Missing 'Upgrade: websocket' header";
+                fclose($fp);
+            } elseif (stripos($response, 'sec-websocket-accept:') === false) {
+                $notification_errors['sms'] = "WebSocket handshake failed. Missing 'Sec-WebSocket-Accept' header";
+                fclose($fp);
             } else {
-                // Send WebSocket handshake
-                fwrite($fp,
-                    "GET / HTTP/1.1\r\n" .
-                    "Host: $sms_host:$sms_port\r\n" .
-                    "Upgrade: websocket\r\n" .
-                    "Connection: Upgrade\r\n" .
-                    "Sec-WebSocket-Key: x3JJHMbDL1EzLkh9GBhXDw==\r\n" .
-                    "Sec-WebSocket-Version: 13\r\n\r\n"
-                );
-                
-                // Read and ignore handshake response
-                fread($fp, 1500);
+                // Prepare the data
+                $data = json_encode([
+                    "phone" => $phone,
+                    "message" => $sms_message
+                ]);
                 
                 // WebSocket frame encoding
-                function encode($payload) {
-                    $frame = [];
-                    $frame[0] = 0x81; // FIN + text frame
-                    $length = strlen($payload);
-                    if ($length <= 125) {
-                        $frame[1] = $length;
-                    } elseif ($length < 65536) {
-                        $frame[1] = 126;
-                        $frame[] = ($length >> 8) & 255;
-                        $frame[] = $length & 255;
-                    } else {
-                        $frame[1] = 127;
-                        for ($i = 7; $i >= 0; $i--) {
-                            $frame[] = ($length >> ($i * 8)) & 255;
-                        }
+                $frame = chr(0x81); // FIN + text frame
+                $length = strlen($data);
+                
+                if ($length <= 125) {
+                    $frame .= chr($length);
+                } elseif ($length < 65536) {
+                    $frame .= chr(126) . chr(($length >> 8) & 255) . chr($length & 255);
+                } else {
+                    $frame .= chr(127);
+                    for ($i = 7; $i >= 0; $i--) {
+                        $frame .= chr(($length >> ($i * 8)) & 255);
                     }
-                    return implode(array_map("chr", $frame)) . $payload;
                 }
                 
-                fwrite($fp, encode($data));
+                // Send the frame
+                fwrite($fp, $frame . $data);
+                
+                // Read the response
+                $response = fread($fp, 1500);
+                
+                // Close the connection
                 fclose($fp);
             }
-        } catch (Exception $e) {
-            $notification_errors['sms'] = "SMS sending failed: " . $e->getMessage();
         }
+    } catch (Exception $e) {
+        $notification_errors['sms'] = "SMS sending failed: " . $e->getMessage();
     }
+}
     
     // SEND EMAIL if checked
     if ($send_email && !empty($email) && !empty($email_host) && !empty($email_port) && !empty($email_username) && !empty($email_password) && !empty($email_from) && !empty($email_from_name)) {
