@@ -825,6 +825,50 @@ if (!file_exists($userConfFile)) {
       80% { opacity: 1; }
       100% { opacity: 0; }
     }
+    
+    /* SMS Server Status Indicator */
+    .sms-status-indicator {
+      margin-top: 10px;
+      padding: 8px 12px;
+      border-radius: 5px;
+      background-color: var(--summary-bg);
+      border: 1px solid var(--input-border);
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    
+    .status-circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+    }
+    
+    .status-online {
+      background-color: #28a745;
+      box-shadow: 0 0 5px #28a745;
+    }
+    
+    .status-offline {
+      background-color: #dc3545;
+      box-shadow: 0 0 5px #dc3545;
+    }
+    
+    .status-checking {
+      background-color: #ffc107;
+      box-shadow: 0 0 5px #ffc107;
+      animation: pulse 1.5s infinite;
+    }
+    
+    @keyframes pulse {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+    
+    #refreshSmsStatus {
+      padding: 0.15rem 0.5rem;
+      font-size: 0.75rem;
+    }
   </style>
 </head>
 <body>
@@ -1078,6 +1122,18 @@ if (!file_exists($userConfFile)) {
               <label class="custom-control-label" for="send_sms">
                 <i class="fas fa-sms mr-1"></i> Send SMS Notification
               </label>
+            </div>
+            
+            <!-- SMS Server Status Indicator -->
+            <div class="sms-status-indicator" id="smsStatusIndicator" style="display: none;">
+              <div class="d-flex align-items-center">
+                <span class="mr-2">SMS Server Status:</span>
+                <div class="status-circle" id="smsStatusCircle"></div>
+                <span id="smsStatusText" class="ml-2"></span>
+                <button type="button" class="btn btn-sm btn-outline-secondary ml-2" id="refreshSmsStatus">
+                  <i class="fas fa-sync-alt"></i>
+                </button>
+              </div>
             </div>
             
             <!-- SMS Configuration Fields (initially hidden) -->
@@ -1554,6 +1610,36 @@ function saveConfiguration(configType, field, value) {
     }
   });
 }
+// Function to check SMS server status
+function checkSmsServerStatus() {
+  const statusCircle = $('#smsStatusCircle');
+  const statusText = $('#smsStatusText');
+  
+  // Set checking status
+  statusCircle.removeClass('status-online status-offline').addClass('status-checking');
+  statusText.text('Checking...');
+  
+  // Make AJAX request to check SMS server status
+  $.ajax({
+    url: 'check_sms_server.php',
+    type: 'GET',
+    dataType: 'json',
+    timeout: 5000, // 5 seconds timeout
+    success: function(response) {
+      if (response.online) {
+        statusCircle.removeClass('status-checking status-offline').addClass('status-online');
+        statusText.text('Online');
+      } else {
+        statusCircle.removeClass('status-checking status-online').addClass('status-offline');
+        statusText.text('Offline - ' + (response.message || 'Connection failed'));
+      }
+    },
+    error: function() {
+      statusCircle.removeClass('status-checking status-online').addClass('status-offline');
+      statusText.text('Offline - Could not check status');
+    }
+  });
+}
 $(document).ready(function () {
   // Initialize dark mode
   initDarkMode();
@@ -1569,8 +1655,12 @@ $(document).ready(function () {
   // Show/hide configurations based on saved states
   if (sendSmsState) {
     $('#smsConfig').show();
+    $('#smsStatusIndicator').show();
+    // Check initial status
+    checkSmsServerStatus();
   } else {
     $('#smsConfig').hide();
+    $('#smsStatusIndicator').hide();
   }
   
   if (sendEmailState) {
@@ -1579,14 +1669,23 @@ $(document).ready(function () {
     $('#emailConfig').hide();
   }
   
-  // Save state when toggles are changed
+  // Show/hide SMS configuration and status indicator based on SMS switch
   $('#send_sms').change(function() {
     localStorage.setItem('send_sms', $(this).is(':checked'));
     if ($(this).is(':checked')) {
       $('#smsConfig').slideDown();
+      $('#smsStatusIndicator').slideDown();
+      // Check SMS server status when switch is turned on
+      checkSmsServerStatus();
     } else {
       $('#smsConfig').slideUp();
+      $('#smsStatusIndicator').slideUp();
     }
+  });
+  
+  // Refresh SMS status button click handler
+  $(document).on('click', '#refreshSmsStatus', function() {
+    checkSmsServerStatus();
   });
   
   $('#send_email').change(function() {
