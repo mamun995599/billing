@@ -150,13 +150,20 @@ $totalInWords = numberToWords($total) . ' taka only';
     table { 
       width: 100%; 
       border-collapse: collapse; 
-      margin-top: 10px; 
+      margin-top: 10px;
+      table-layout: fixed; /* This allows us to set fixed column widths */
     }
     td, th { 
       border: 1px solid #000; 
       padding: 3px; 
       font-size: 13px;
     }
+    /* Column width adjustments */
+    .col-sl { width: 30px; } /* SL column */
+    .col-name { width: auto; } /* Investigation Name column */
+    .col-qty { width: 60px; } /* Qty column - reduced width */
+    .col-amount { width: 90px; } /* Amount column */
+    
     .text-right { 
       text-align: right; 
     }
@@ -275,10 +282,10 @@ $totalInWords = numberToWords($total) . ' taka only';
   <table>
     <thead>
       <tr>
-        <th>SL</th>
-        <th>Investigation Name</th>
-        <th class="text-center">Qty</th>
-        <th>Amount</th>
+        <th class="col-sl">SL</th>
+        <th class="col-name">Investigation Name</th>
+        <th class="col-qty text-center">Qty</th>
+        <th class="col-amount">Amount</th>
       </tr>
     </thead>
     <tbody>
@@ -286,10 +293,10 @@ $totalInWords = numberToWords($total) . ' taka only';
         foreach ($services as $index => $s) {
           $lineTotal = $s['final_price'];
           echo "<tr>
-                  <td>" . ($index + 1) . "</td>
-                  <td>{$s['service_name']}</td>
-                  <td class=\"text-center\">{$s['unit']}</td>
-                  <td class='text-right'>" . number_format($lineTotal, 2) . "</td>
+                  <td class=\"col-sl\">" . ($index + 1) . "</td>
+                  <td class=\"col-name\">{$s['service_name']}</td>
+                  <td class=\"col-qty text-center\">{$s['unit']}</td>
+                  <td class=\"col-amount text-right\">" . number_format($lineTotal, 2) . "</td>
                 </tr>";
         }
       ?>
@@ -305,24 +312,24 @@ $totalInWords = numberToWords($total) . ' taka only';
             <?php endif; ?>
           </div>
         </td>
-        <td class="label">Total</td>
-        <td class="amount"><?= number_format($total, 2) ?></td>
+        <td class="col-qty label">Total</td>
+        <td class="col-amount amount"><?= number_format($total, 2) ?></td>
       </tr>
       <tr>
-        <td class="label">Less</td>
-        <td class="amount"><?= number_format($patient['less_total'], 2) ?></td>
+        <td class="col-qty label">Less</td>
+        <td class="col-amount amount"><?= number_format($patient['less_total'], 2) ?></td>
       </tr>
       <tr>
-        <td class="label">Payable</td>
-        <td class="amount"><?= number_format($total - $patient['less_total'], 2) ?></td>
+        <td class="col-qty label">Payable</td>
+        <td class="col-amount amount"><?= number_format($total - $patient['less_total'], 2) ?></td>
       </tr>
       <tr>
-        <td class="label">Paid</td>
-        <td class="amount"><?= number_format($patient['paid'], 2) ?></td>
+        <td class="col-qty label">Paid</td>
+        <td class="col-amount amount"><?= number_format($patient['paid'], 2) ?></td>
       </tr>
       <tr>
-        <td class="label">Due</td>
-        <td class="amount"><?= number_format(($total - $patient['less_total']) - $patient['paid'], 2) ?></td>
+        <td class="col-qty label">Due</td>
+        <td class="col-amount amount"><?= number_format(($total - $patient['less_total']) - $patient['paid'], 2) ?></td>
       </tr>
     </tfoot>
   </table>
