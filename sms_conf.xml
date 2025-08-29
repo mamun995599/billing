@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <config>
     <sms>
-        <host>192.168.0.101</host>
+        <host>192.168.0.102</host>
         <port>8070</port>
     </sms>
 </config>

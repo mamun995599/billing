@@ -160,6 +160,9 @@ $totalInWords = numberToWords($total) . ' taka only';
     .text-right { 
       text-align: right; 
     }
+    .text-center {
+      text-align: center;
+    }
     .btn-print { 
       margin: 10px auto; 
       display: block; 
@@ -176,10 +179,12 @@ $totalInWords = numberToWords($total) . ' taka only';
       background-color: #0056b3;
     }
     /* Paid / Due Status */
-    .status-box {
-      position: absolute;
-      bottom: 20px;
-      right: 30px;
+    .status-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      width: 100%;
     }
     .paid {
       font-size: 25px;
@@ -223,6 +228,19 @@ $totalInWords = numberToWords($total) . ' taka only';
       text-align: right; /* Right-align the labels */
       padding-right: 2px; /* Add space between label and value */
     }
+    /* New table styles */
+    tfoot td.empty {
+      border: none;
+      background: transparent;
+    }
+    tfoot td.label {
+      text-align: center;
+      font-weight: bold;
+    }
+    tfoot td.amount {
+      text-align: right;
+      font-weight: bold;
+    }
     @media print {
       body { background-color: white; }
       .btn-print { display: none; }
@@ -259,7 +277,7 @@ $totalInWords = numberToWords($total) . ' taka only';
       <tr>
         <th>SL</th>
         <th>Investigation Name</th>
-        <th>Qty</th>
+        <th class="text-center">Qty</th>
         <th>Amount</th>
       </tr>
     </thead>
@@ -270,18 +288,42 @@ $totalInWords = numberToWords($total) . ' taka only';
           echo "<tr>
                   <td>" . ($index + 1) . "</td>
                   <td>{$s['service_name']}</td>
-                  <td>{$s['unit']}</td>
+                  <td class=\"text-center\">{$s['unit']}</td>
                   <td class='text-right'>" . number_format($lineTotal, 2) . "</td>
                 </tr>";
         }
       ?>
     </tbody>
     <tfoot>
-      <tr><th colspan="3" class="text-right">Total</th><th class="text-right"><?= number_format($total, 2) ?></th></tr>
-      <tr><th colspan="3" class="text-right">Less</th><th class="text-right"><?= number_format($patient['less_total'], 2) ?></th></tr>
-      <tr><th colspan="3" class="text-right">Payable</th><th class="text-right"><?= number_format($total - $patient['less_total'], 2) ?></th></tr>
-      <tr><th colspan="3" class="text-right">Paid</th><th class="text-right"><?= number_format($patient['paid'], 2) ?></th></tr>
-      <tr><th colspan="3" class="text-right">Due</th><th class="text-right"><?= number_format(($total - $patient['less_total']) - $patient['paid'], 2) ?></th></tr>
+      <tr>
+        <td colspan="2" rowspan="5" class="empty">
+          <div class="status-container">
+            <?php if ($due <= 0): ?>
+              <div class="paid">PAID</div>
+            <?php else: ?>
+              <div class="due">DUE: <?= number_format($due, 2) ?></div>
+            <?php endif; ?>
+          </div>
+        </td>
+        <td class="label">Total</td>
+        <td class="amount"><?= number_format($total, 2) ?></td>
+      </tr>
+      <tr>
+        <td class="label">Less</td>
+        <td class="amount"><?= number_format($patient['less_total'], 2) ?></td>
+      </tr>
+      <tr>
+        <td class="label">Payable</td>
+        <td class="amount"><?= number_format($total - $patient['less_total'], 2) ?></td>
+      </tr>
+      <tr>
+        <td class="label">Paid</td>
+        <td class="amount"><?= number_format($patient['paid'], 2) ?></td>
+      </tr>
+      <tr>
+        <td class="label">Due</td>
+        <td class="amount"><?= number_format(($total - $patient['less_total']) - $patient['paid'], 2) ?></td>
+      </tr>
     </tfoot>
   </table>
   
@@ -295,15 +337,6 @@ $totalInWords = numberToWords($total) . ' taka only';
   
   <div class="footer-info">
     <strong>Remarks:</strong> <?= $patient['remarks'] ?>
-  </div>
-  
-  <!-- Paid / Due status -->
-  <div class="status-box">
-    <?php if ($due <= 0): ?>
-      <div class="paid">PAID</div>
-    <?php else: ?>
-      <div class="due">DUE: <?= number_format($due, 2) ?></div>
-    <?php endif; ?>
   </div>
 </div>
 <button class="btn-print" onclick="window.print()">🖨️ Print</button>
