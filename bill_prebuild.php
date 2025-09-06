@@ -2144,66 +2144,6 @@ $(document).ready(function () {
   
   // Initial total calculation trigger
   $('.price, .unit, .less, .less-percent').trigger('input');
-  
-  // Handle Enter key for field navigation
-  $(document).on('keydown', 'input, select, textarea', function(e) {
-    const key = e.which || e.keyCode;
-    
-    // If Enter key is pressed
-    if (key === 13) {
-      // Check if Shift+Enter is pressed (for saving)
-      if (e.shiftKey) {
-        e.preventDefault();
-        // Trigger save button click
-        if ($('#edit_patient_id').is(':checked')) {
-          $('#update-btn').click();
-        } else {
-          $('#save-btn').click();
-        }
-        return;
-      }
-      
-      // Prevent default form submission
-      e.preventDefault();
-      
-      // Special handling for service table
-      if ($(this).closest('#service-table').length > 0) {
-        const currentRow = $(this).closest('tr');
-        const inputsInRow = currentRow.find('input:not([readonly])');
-        const inputIndex = inputsInRow.index(this);
-        
-        // If this is the service name field or the last input in the row, add a new row
-        if ($(this).attr('name') === 'service_name[]' || inputIndex === inputsInRow.length - 1) {
-          // Add new row
-          $('#add-row').click();
-          
-          // Focus on the service name field in the new row
-          setTimeout(function() {
-            const newRow = $('#service-table tbody tr:last');
-            newRow.find('input[name="service_name[]"]').focus();
-          }, 100);
-        } else {
-          // Move to next input in the same row
-          inputsInRow.eq(inputIndex + 1).focus();
-        }
-      } else {
-        // For non-service table fields, use standard tab behavior
-        // Get all focusable elements in the form
-        const focusableElements = $('#billing-form').find('input:not([readonly]), select, textarea, button').filter(':visible');
-        
-        // Get current element index
-        const currentIndex = focusableElements.index(this);
-        
-        // Move to next focusable element
-        if (currentIndex < focusableElements.length - 1) {
-          focusableElements.eq(currentIndex + 1).focus();
-        } else {
-          // If we're at the last element, go back to the first
-          focusableElements.eq(0).focus();
-        }
-      }
-    }
-  });
 });
 </script>
 </body>
